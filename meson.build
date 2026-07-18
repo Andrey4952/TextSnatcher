@@ -23,9 +23,7 @@ dependencies = [
     dependency('libportal'),
     dependency('gdk-pixbuf-2.0'),
     dependency('glib-2.0'),
-    dependency('gtk+-3.0'),
-    dependency('libportal'),
-    dependency('ayatana-appindicator3-0.1')
+    dependency('gtk+-3.0')
 ]
 
 subdir ('src')

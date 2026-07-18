@@ -1,9 +1,4 @@
 /build
-/_build
-/_build_aya
-/_build_sni
-/_build_user
-/builddir
 .travis.yml
 /.flatpak-builder
 # gnomeapp.yml

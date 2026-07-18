@@ -1,9 +1,6 @@
 public class MainScreen : Gtk.EventBox {
     TesseractTrigger tesseract_trigger ;
-    CustomHeaderBar header_bar;
-
-    public MainScreen (CustomHeaderBar hdr_bar) {
-        header_bar = hdr_bar;
+    public MainScreen () {
         tesseract_trigger = new TesseractTrigger () ;
         var main_stack = new Gtk.Stack () ;
         var home_screen = new HomeScreen () ;
@@ -34,14 +31,7 @@ public class MainScreen : Gtk.EventBox {
 
     void perform_operation (Gtk.Label title_label, string image_source) {
         tesseract_trigger.start_tess_process.begin (title_label, image_source, (obj, res) => {
-            // After OCR is completed, enable save options
-            // For now, skip setting the trigger to prevent segfault
-            // The save functionality is still available after OCR
-            Logger.info("OCR completed, skipping set_tesseract_trigger to prevent segfault");
+            return ;
         }) ;
-    }
-
-    public TesseractTrigger get_tesseract_trigger() {
-        return tesseract_trigger;
     }
 }
