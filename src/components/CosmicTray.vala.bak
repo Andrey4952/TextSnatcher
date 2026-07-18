@@ -1,0 +1,287 @@
+using GLib;
+using Gtk;
+using GLib.DBus;
+
+[DBus (name = "org.kde.StatusNotifierItem")]
+public interface SniInterface : Object {
+    public abstract string Category { owned get; }
+    public abstract string Id { owned get; }
+    public abstract string Title { owned get; }
+    public abstract string Status { owned get; }
+    public abstract string IconName { owned get; }
+    public abstract string IconThemePath { owned get; }
+    public abstract bool ItemIsMenu { owned get; }
+    public abstract ObjectPath Menu { owned get; }
+    public abstract void Activate (int x, int y);
+    public abstract void SecondaryActivate (int x, int y);
+    public signal void NewIcon ();
+    public signal void NewStatus (string status);
+    public signal void NewTitle ();
+}
+
+[DBus (name = "com.canonical.dbusmenu")]
+public interface DbusmenuInterface : Object {
+    public abstract uint32 Version { owned get; }
+    public abstract string TextDirection { owned get; }
+    public abstract string Status { owned get; }
+    public abstract Variant GetLayout (int parent_id, int recursion_depth, string[] property_names);
+    public abstract void Event (int id, string event_id, Variant data, uint32 timestamp);
+    public abstract bool AboutToShow (int id);
+    public signal void LayoutUpdated (uint32 revision, int parent);
+}
+
+[DBus (name = "org.kde.StatusNotifierWatcher")]
+public interface StatusNotifierWatcher : Object {
+    public abstract void RegisterStatusNotifierItem (string service);
+    public abstract void RegisterStatusNotifierHost (string service);
+    public abstract string[] RegisteredStatusNotifierItems { owned get; }
+    public abstract string[] RegisteredStatusNotifierHosts { owned get; }
+    public abstract string[] IsStatusNotifierItemRegistered (string service);
+    public abstract string[] IsStatusNotifierHostRegistered (string service);
+    public signal void StatusNotifierItemRegistered (string service);
+    public signal void StatusNotifierHostRegistered (string service);
+    public signal void StatusNotifierItemUnregistered (string service);
+    public signal void StatusNotifierHostUnregistered (string service);
+}
+
+public class CosmicTray : Object {
+    private const string APP_ID = "com.github.rajsolai.textsnatcher";
+    private const string DBUSMENU_PATH = "/com/canonical/dbusmenu";
+
+    private struct Entry {
+        public int id;
+        public string label;
+        public string? action;
+        public string? icon;
+        public int parent_id;
+    }
+
+    private Entry[] entries;
+    private uint bus_id = 0;
+    private DBusConnection sni_conn;
+    private uint revision = 0;
+    private TesseractTrigger trigger;
+
+    public CosmicTray (TesseractTrigger trigger, Gtk.Application app) {
+        this.trigger = trigger;
+        build_menu ();
+    }
+
+    private void build_menu () {
+        entries = {
+            { 10, "Snatch Now!",        "snatch_now", "camera-photo",     0 },
+            { -1, "", null, null, 0 },
+            { 11, "Take Screenshot",     null, null, 0 },
+            { 20, "Fullscreen",          "screenshot", null, 11 },
+            { 21, "Selection",           "screenshot", null, 11 },
+            { 12, "Choose File",         "file", "document-open", 0 },
+            { 13, "Get from Clipboard",  "clipboard", "edit-paste", 0 },
+            { -2, "", null, null, 0 },
+            { 14, "Save Options",        null, null, 0 },
+            { 30, "Save to Documents",   "save_docs", null, 14 },
+            { 31, "Save to Images",      "save_images", null, 14 },
+            { 32, "Copy to Clipboard",   "save_clip", null, 14 },
+            { 15, "Language",            null, null, 0 },
+            { 40, "English",             "lang_eng", null, 15 },
+            { 41, "Russian",             "lang_rus", null, 15 },
+            { -3, "", null, null, 0 },
+            { 16, "Show Window",         "show", "window-maximize", 0 },
+            { 17, "Hide Window",         "hide", "window-minimize", 0 },
+            { 18, "Quit",                "quit", "application-exit", 0 }
+        };
+    }
+
+    public void register () {
+        bus_id = Bus.own_name (BusType.SESSION, APP_ID,
+            BusNameOwnerFlags.NONE,
+            on_bus_acquired,
+            () => {},
+            () => {});
+    }
+
+    public void unregister () {
+        if (bus_id != 0) { Bus.unown_name (bus_id); bus_id = 0; }
+    }
+
+    private void on_bus_acquired (DBusConnection conn) {
+        sni_conn = conn;
+        try {
+            conn.register_object ("/StatusNotifierItem", new SniImpl (this));
+            var f = FileStream.open ("/tmp/ct_sni.log", "a");
+            if (f != null) { f.puts ("SNI OK\n"); f.flush (); }
+        } catch (IOError e) {
+            var f = FileStream.open ("/tmp/ct_sni.log", "a");
+            if (f != null) { f.printf ("SNI ERR: %s\n", e.message); f.flush (); }
+        }
+        try {
+            conn.register_object (DBUSMENU_PATH, new DbusmenuImpl (this));
+            var f = FileStream.open ("/tmp/ct_menu.log", "a");
+            if (f != null) { f.puts ("MENU OK\n"); f.flush (); }
+        } catch (IOError e) {
+            var f = FileStream.open ("/tmp/ct_menu.log", "a");
+            if (f != null) { f.printf ("MENU ERR: %s\n", e.message); f.flush (); }
+        }
+        register_sni (conn);
+    }
+
+    private void register_sni (DBusConnection conn) {
+        string[] watchers = {"org.kde.StatusNotifierWatcher", "com.system76.CosmicStatusNotifierWatcher"};
+        foreach (string watcher in watchers) {
+            try {
+                conn.call_sync (watcher, "/StatusNotifierWatcher", "org.kde.StatusNotifierWatcher",
+                    "RegisterStatusNotifierItem", new Variant ("(s)", APP_ID),
+                    null, DBusCallFlags.NONE, -1, null);
+                var f = FileStream.open ("/tmp/ct_reg.log", "a");
+                if (f != null) { f.printf ("REG OK %s\n", watcher); f.flush (); }
+            } catch (Error e) {
+                var f = FileStream.open ("/tmp/ct_reg.log", "a");
+                if (f != null) { f.printf ("REG ERR %s: %s\n", watcher, e.message); f.flush (); }
+            }
+        }
+    }
+
+    public void show_window () {
+        trigger.accept_files_fromchooser ();
+    }
+
+    private bool has_children (int id) {
+        foreach (var e in entries) if (e.parent_id == id) return true;
+        return false;
+    }
+
+    private string? action_for (int id) {
+        foreach (var e in entries) if (e.id == id) return e.action;
+        return null;
+    }
+
+    private Variant empty_av () {
+        return Variant.parse (new VariantType ("av"), "[]");
+    }
+
+    [DBus (name = "org.kde.StatusNotifierItem")]
+    private class SniImpl : Object {
+        private weak CosmicTray tray;
+        public SniImpl (CosmicTray tray) { this.tray = tray; }
+
+        public string Category { owned get { return "ApplicationStatus"; } }
+        public string Id { owned get { return "textsnatcher"; } }
+        public string Title { owned get { return "TextSnatcher"; } }
+        public string Status { owned get { return "Active"; } }
+        public string IconName { owned get { return "edit-paste"; } }
+        public string IconThemePath { owned get { return ""; } }
+        public bool ItemIsMenu { get { return false; } }
+        public ObjectPath Menu { owned get { return new ObjectPath ("/com/canonical/dbusmenu"); } }
+
+        public void Activate (int x, int y) { tray.show_window (); }
+        public void SecondaryActivate (int x, int y) { tray.show_window (); }
+        public signal void NewIcon ();
+        public signal void NewStatus (string status);
+        public signal void NewTitle ();
+    }
+
+    [DBus (name = "com.canonical.dbusmenu")]
+    private class DbusmenuImpl : Object {
+        private weak CosmicTray tray;
+        public DbusmenuImpl (CosmicTray tray) { this.tray = tray; }
+
+        public uint32 Version { get { return 3; } }
+        public string TextDirection { owned get { return "ltr"; } }
+        public string Status { owned get { return "normal"; } }
+        public signal void LayoutUpdated (uint32 revision, int parent);
+
+        public Variant GetLayout (int parent_id, int recursion_depth, string[] property_names)
+            throws DBusError, IOError {
+            tray.revision++;
+            var layout = tray.build_layout (parent_id, recursion_depth);
+            var b = new VariantBuilder (new VariantType ("(u(ia{sv}av))"));
+            b.add ("u", tray.revision);
+            b.add_value (layout);
+            return b.end ();
+        }
+
+        public void Event (int id, string event_id, Variant data, uint32 timestamp) {
+            if (event_id == "clicked") {
+                var act = tray.action_for (id);
+                if (act != null) Idle.add (() => { tray.invoke_action (act); return false; });
+            }
+        }
+
+        public bool AboutToShow (int id) { return true; }
+    }
+
+    private Variant build_layout (int parent_id, int recursion_depth = -1) {
+        var items_str = new StringBuilder ();
+        foreach (var e in entries) {
+            if (e.parent_id != parent_id) continue;
+            string props_str;
+            if (e.id < 0) {
+                props_str = "{'type': <'separator'>}";
+            } else if (has_children (e.id) && recursion_depth == -1) {
+                props_str = "{'label': <'%s'>, 'children-display': <'submenu'>}".printf (e.label);
+            } else if (has_children (e.id) && recursion_depth == 0) {
+                props_str = "{'label': <'%s'>, 'children-display': <'submenu'>}".printf (e.label);
+            } else {
+                props_str = "{'label': <'%s'>}".printf (e.label);
+                if (e.action != null) props_str = "{'label': <'%s'>, 'action': <'%s.%s'>}".printf (e.label, APP_ID, e.action);
+                if (e.icon != null)   props_str = "{'label': <'%s'>, 'icon-name': <'%s'>}".printf (e.label, e.icon);
+                if (e.action != null && e.icon != null) props_str = "{'label': <'%s'>, 'action': <'%s.%s'>, 'icon-name': <'%s'>}".printf (e.label, APP_ID, e.action, e.icon);
+            }
+
+            Variant children;
+            if (e.id < 0) {
+                children = empty_av ();
+            } else if (has_children (e.id) && recursion_depth == -1) {
+                children = build_submenu (e.id);
+            } else if (has_children (e.id) && recursion_depth == 0) {
+                children = empty_av ();
+            } else {
+                children = empty_av ();
+            }
+            // children is already a proper av array with <...> wrappers
+            string child_str = children.print (false);
+            items_str.append_printf ("(%d, %s, %s),", e.id, props_str, child_str);
+        }
+        var items = items_str.str;
+        if (items.length > 0) items = items[0:items.length - 1];
+
+        var root_props = "{'children-display': <'submenu'>}";
+        var layout_str = "(%d, %s, [%s])".printf (parent_id, root_props, items);
+        return Variant.parse (new VariantType ("(ia{sv}av)"), layout_str);
+    }
+
+    private Variant build_submenu (int parent_id) {
+        var items_str = new StringBuilder ();
+        foreach (var e in entries) {
+            if (e.parent_id != parent_id) continue;
+            string props_str;
+            if (e.id < 0) {
+                props_str = "{'type': <'separator'>}";
+            } else {
+                props_str = "{'label': <'%s'>}".printf (e.label);
+                if (e.action != null) props_str = "{'label': <'%s'>, 'action': <'%s.%s'>}".printf (e.label, APP_ID, e.action);
+                if (e.icon != null)   props_str = "{'label': <'%s'>, 'icon-name': <'%s'>}".printf (e.label, e.icon);
+                if (e.action != null && e.icon != null) props_str = "{'label': <'%s'>, 'action': <'%s.%s'>, 'icon-name': <'%s'>}".printf (e.label, APP_ID, e.action, e.icon);
+            }
+            // submenu items have empty children @av []
+            items_str.append_printf ("<%d, %s, @av []>,", e.id, props_str);
+        }
+        var items = items_str.str;
+        if (items.length > 0) items = items[0:items.length - 1];
+        return Variant.parse (new VariantType ("av"), "[%s]".printf (items));
+    }
+
+    private void invoke_action (string action) {
+        if (action == "snatch_now") trigger.accept_files_fromchooser ();
+        else if (action == "screenshot") trigger.get_screenshot.begin (null, "screenshot", (obj, res) => {});
+        else if (action == "file") trigger.accept_files_fromchooser ();
+        else if (action == "clipboard") trigger.get_screenshot.begin (null, "clip", (obj, res) => {});
+        else if (action == "show") {} // show window - not implemented yet
+        else if (action == "hide") {} // hide window - not implemented yet
+        else if (action == "quit") Process.exit (0);
+        else if (action == "save_docs") trigger.save_to_documents ();
+        else if (action == "save_images") trigger.save_to_images ();
+        else if (action == "save_clip") trigger.copy_to_clipboard ();
+        else if (action == "lang_eng") {} // set language eng - not implemented yet
+        else if (action == "lang_rus") {} // set language rus - not implemented yet
+    }
+}

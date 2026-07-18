@@ -1,0 +1,16 @@
+/build
+/_build
+/_build_aya
+/_build_sni
+/_build_user
+/builddir
+.travis.yml
+/.flatpak-builder
+# gnomeapp.yml
+/obj-x86_64-linux-gnu
+/debian/.debhelper
+/debian/debhelper-build-stamp
+/debian/com.github.rajsolai.textsnatcher.debhelper.log
+/debian/com.github.rajsolai.textsnatcher.substvars
+/debian/com.github.rajsolai.textsnatcher
+/debian/files

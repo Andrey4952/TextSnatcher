@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=TextSnatcher (с поддержкой иконки в трее)
+Comment=Snatch Text with just a Drag - с поддержкой иконки в трее на Wayland
+GenericName=TextSnatcher
+Exec=env GDK_BACKEND=x11 com.github.rajsolai.textsnatcher
+Icon=com.github.rajsolai.textsnatcher
+Terminal=false
+Categories=Graphics;Scanning;
+Keywords=TextSnatcher;OCR;tray;wayland;x11;

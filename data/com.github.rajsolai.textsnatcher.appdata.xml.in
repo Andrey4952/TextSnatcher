@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2022 solairaj <msraj085@gmail.com> -->
+<component type="desktop">
+  <id>com.github.rajsolai.textsnatcher</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0+</project_license>
+  <name>TextSnatcher</name>
+  <summary>Snatch Text with just a Drag</summary>
+  <description>
+    <p>Copy Text from Images with ease, Perform OCR operations in seconds.</p>
+  </description>
+  <provides>
+    <binary>com.github.rajsolai.textsnatcher</binary>
+  </provides>
+  <developer_name>Solai Raj (RajSolai)</developer_name>
+  <url type="homepage">https://github.com/RajSolai/TextSnatcher</url>
+  <url type="bugtracker">https://github.com/RajSolai/TextSnatcher/issues</url>
+  <url type="help">https://github.com/RajSolai/TextSnatcher/issues</url>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/RajSolai/TextSnatcher/master/data/screenshots/snap-dark.png</image>
+      <image>https://raw.githubusercontent.com/RajSolai/TextSnatcher/master/data/screenshots/snap-default.png</image>
+    </screenshot>
+  </screenshots>
+  <content_rating type="oars-1.1" />
+  <releases>
+   <release version="2.0.0" date="2022-03-13">
+      <description>
+        <p>v2.0.0</p>
+        <ul>
+          <li>scrot based screenshot backend for X11.</li>
+          <li>Option to use Image from Clipboard/Files.</li>
+          <li>German, Dutch and Turkish Language Support added.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.0.1" date="2022-02-02">
+      <description>
+        <p>v1.0.1</p>
+        <ul>
+          <li>libportal-0.5 based screenshot backend.</li>
+          <li>Usage of minimal permissions.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.0.0" date="2022-01-27">
+      <description>
+        <p>v1.0.0</p>
+        <ul>
+          <li> 
+           Basic OCR Operations.
+          </li>
+          <li>
+           ENG,TAM,RUS,JAP,HIN,SPA,THA,CHI,ARA,FRN Language Support added.
+          </li>
+          <li>
+           libhandy-1 based window.
+          </li>
+          <li>
+            Uses Tesseract-v4.x.
+          </li>
+        </ul>
+      </description>
+    </release>
+  </releases>
+</component>

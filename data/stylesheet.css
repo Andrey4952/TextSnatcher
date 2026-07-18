@@ -1,0 +1,20 @@
+.h2 {
+    font-size: 24px;
+}
+
+header .header {
+    background-color: transparent;
+}
+
+.select-pic-box {
+    padding: 1rem;
+}
+
+.header {
+    padding: 0.2rem;
+}
+
+.dialog-title {
+    font-weight: bold;
+    font-size: 18px;
+}

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=TextSnatcher
+Comment=Snatch Text with just a Drag
+GenericName=TextSnatcher
+Exec=com.github.rajsolai.textsnatcher %U
+Icon=com.github.rajsolai.textsnatcher
+Terminal=false
+Categories=Graphics;Scanning;
+Keywords=TextSnatcher;OCR;
