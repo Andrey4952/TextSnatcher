@@ -36,7 +36,7 @@ Full System Tray support for **COSMIC / Wayland** (via `ayatana-appindicator3` a
 The screenshot engine has been completely overhauled to support modern Linux display servers and compositors:
 
 - **Wayland (Native `grim` + `slurp`):** High-performance cropped area selection on Wayland. Includes a 200ms non-blocking delay to resolve Wayland seat grab conflicts with closing panel menus, and direct `wl-copy` integration so copied text is placed on the clipboard even when the main window is hidden.
-- **COSMIC Desktop Integration:** *(Custom extension added by Andrey4952)* — exports D-Bus menus for System76 COSMIC Desktop's StatusNotifierWatcher and KDE StatusNotifierWatcher seamlessly.
+- **COSMIC Desktop Integration:** Exports D-Bus menus for System76 COSMIC Desktop's StatusNotifierWatcher and KDE StatusNotifierWatcher seamlessly.
 - **XDG Desktop Portal Fallback:** Automatic fallback to `libportal` (`Xdp.Portal`) if native CLI screenshot utilities are unavailable.
 - **X11 Compatibility:** Uses `scrot` for legacy X11 sessions.
 
