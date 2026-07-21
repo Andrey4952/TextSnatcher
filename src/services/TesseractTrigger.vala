@@ -15,16 +15,28 @@ public class TesseractTrigger : Object {
     }
 
     public void accept_files_fromchooser () {
-        portal.open_file.begin (
-            null,
+        var chooser = new Gtk.FileChooserNative (
             "Select an Image to perform OCR !",
             null,
-            null,
-            null,
-            Xdp.OpenFileFlags.NONE,
-            null,
-            filechooser_callback
+            Gtk.FileChooserAction.OPEN,
+            "_Open",
+            "_Cancel"
         ) ;
+        var filter = new Gtk.FileFilter () ;
+        filter.set_filter_name ("Images") ;
+        filter.add_mime_type ("image/*") ;
+        chooser.add_filter (filter) ;
+
+        if (chooser.run () == Gtk.ResponseType.ACCEPT) {
+            string filename = chooser.get_filename () ;
+            if (filename != null && filename.length > 0) {
+                string lead_file = "\'" + filename + "\'" ;
+                read_image.begin (lead_file, (obj, res) => {
+                    print ("Reading file from chooser: %s\n", filename) ;
+                }) ;
+            }
+        }
+        chooser.destroy () ;
     }
 
     async void save_shot_scrot () {
@@ -33,24 +45,6 @@ public class TesseractTrigger : Object {
             yield read_image (scrot_path) ;
         } catch (Error e) {
             print (e.message) ;
-        }
-    }
-
-    void filechooser_callback (GLib.Object ? obj, GLib.AsyncResult res) {
-        GLib.Variant info ;
-        try {
-            info = portal.open_file.end (res) ;
-            Variant uris = info.lookup_value ("uris", VariantType.STRING_ARRAY) ;
-            string[] files = uris as string[] ;
-            if (files.length > 0) {
-                string path = GLib.Filename.from_uri (files[0], null) ;
-                string lead_file = "\'" + path + "\'" ;
-                read_image.begin (lead_file, (obj, res) => {
-                    print ("Reading file from chooser: %s\n", path) ;
-                }) ;
-            }
-        } catch (Error e) {
-            critical (e.message) ;
         }
     }
 
@@ -132,21 +126,29 @@ public class TesseractTrigger : Object {
         }
     }
 
-    void clipboard_callback (Gtk.Clipboard _, Gdk.Pixbuf pixbuf) {
-        try {
+    void clipboard_callback (Gtk.Clipboard _, Gdk.Pixbuf? pixbuf) {
+        if (pixbuf == null) {
+            print ("No image found in clipboard\n") ;
+            if (label != null) {
+                label.label = "No Image found in Clipboard" ;
+            }
+            return ;
+        }
 
-            File file = File.new_for_path (Path.build_filename (scrot_path)) ;
+        try {
+            File file = File.new_for_path (scrot_path) ;
             if (file.query_exists (null)) {
                 file.delete (null) ;
             }
-            DataOutputStream fos = new DataOutputStream (file.create (FileCreateFlags.REPLACE_DESTINATION)) ;
-            pixbuf.save_to_stream_async.begin (fos, "png", null, () => {
-                read_image.begin (scrot_path, (obj, res) => {
-                    print ("Reading File") ;
-                }) ;
+            pixbuf.save (scrot_path, "png") ;
+            read_image.begin (scrot_path, (obj, res) => {
+                print ("Reading image from clipboard\n") ;
             }) ;
         } catch (Error err) {
             critical (err.message) ;
+            if (label != null) {
+                label.label = "Error Reading Image" ;
+            }
         }
     }
 
