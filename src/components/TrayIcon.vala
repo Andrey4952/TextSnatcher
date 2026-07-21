@@ -84,18 +84,6 @@ public class TrayIcon : Object {
     private void build_menu() {
         tray_menu = new Gtk.Menu();
         
-        // Snatch Now menu item
-        var snatch_now_item = new Gtk.MenuItem.with_label("Snatch Now!");
-        snatch_now_item.activate.connect(() => {
-            print("Snatch Now selected from tray menu\n");
-            open_requested();
-        });
-        tray_menu.append(snatch_now_item);
-        
-        // Separator
-        var separator1 = new Gtk.SeparatorMenuItem();
-        tray_menu.append(separator1);
-        
         // Take Screenshot submenu
         var screenshot_menu_item = new Gtk.MenuItem.with_label("Take Screenshot");
         var screenshot_submenu = new Gtk.Menu();

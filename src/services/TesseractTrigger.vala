@@ -42,10 +42,13 @@ public class TesseractTrigger : Object {
             info = portal.open_file.end (res) ;
             Variant uris = info.lookup_value ("uris", VariantType.STRING_ARRAY) ;
             string[] files = uris as string[] ;
-            string lead_file = "\'" + files[0].substring (7).replace ("%20", " ") + "\'" ;
-            read_image.begin (lead_file, (obj, res) => {
-                print ("Reading file from chooser") ;
-            }) ;
+            if (files.length > 0) {
+                string path = GLib.Filename.from_uri (files[0], null) ;
+                string lead_file = "\'" + path + "\'" ;
+                read_image.begin (lead_file, (obj, res) => {
+                    print ("Reading file from chooser: %s\n", path) ;
+                }) ;
+            }
         } catch (Error e) {
             critical (e.message) ;
         }
@@ -53,7 +56,9 @@ public class TesseractTrigger : Object {
 
     async void read_image (string file_path) {
         string lang = LanguageButton.preferred_language ;
-        label.label = "Reading Image" ;
+        if (label != null) {
+            label.label = "Reading Image" ;
+        }
         Idle.add (read_image.callback) ;
         yield ;
         try {
@@ -63,11 +68,13 @@ public class TesseractTrigger : Object {
                 copy_to_clipboard () ;
             } else {
                 print ("Error is " + err + " status is " + stat.to_string ()) ;
-                label.label = "Error Reading Image" ;
+                if (label != null) {
+                    label.label = "Error Reading Image" ;
+                }
             }
         } catch (Error e) {
             critical (e.message) ;
-            if (e.code == 8) {
+            if (e.code == 8 && label != null) {
                 label.label = "Dependencies Not Found" ;
             }
         }
@@ -87,9 +94,13 @@ public class TesseractTrigger : Object {
             FileUtils.get_contents (out_path + ".txt", out text_output) ;
             if (text_output.length > 0) {
                 clipboard.set_text (text_output, text_output.length) ;
-                label.label = "Checkout Clipboard :)" ;
+                if (label != null) {
+                    label.label = "Checkout Clipboard :)" ;
+                }
             } else {
-                label.label = "Error Reading Image" ;
+                if (label != null) {
+                    label.label = "Error Reading Image" ;
+                }
             }
         } catch (Error e) {
             print (e.message) ;

@@ -91,9 +91,6 @@ public class CosmicTray : Object {
     private Gtk.Menu build_menu () {
         var menu = new Gtk.Menu ();
 
-        menu.append (item_with_action ("Snatch Now!", "camera-photo", "snatch_now"));
-        menu.append (new Gtk.SeparatorMenuItem ());
-
         menu.append (item_with_action ("Take Screenshot", "camera-photo", "screenshot_sel"));
 
         menu.append (item_with_action ("Choose File", "document-open", "file"));
@@ -123,8 +120,7 @@ public class CosmicTray : Object {
     }
 
     private void invoke_action (string action) {
-        if (action == "snatch_now") trigger.accept_files_fromchooser ();
-        else if (action == "screenshot_sel") trigger.get_screenshot.begin (new Gtk.Label (""), "shot", (obj, res) => {});
+        if (action == "screenshot_sel") trigger.get_screenshot.begin (new Gtk.Label (""), "shot", (obj, res) => {});
         else if (action == "file") trigger.accept_files_fromchooser ();
         else if (action == "clipboard") trigger.get_screenshot.begin (new Gtk.Label (""), "clip", (obj, res) => {});
         else if (action == "show") { if (app != null) foreach (var w in app.get_windows ()) { w.present (); } }
