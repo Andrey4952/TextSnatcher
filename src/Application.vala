@@ -21,6 +21,7 @@
 
 public class Application : Gtk.Application {
     MainWindow main_window ;
+    private bool is_initialized = false ;
 
     public Application () {
         Object (
@@ -30,6 +31,14 @@ public class Application : Gtk.Application {
     }
 
     protected override void activate () {
+        if (is_initialized) {
+            if (main_window != null && main_window.visible) {
+                main_window.present () ;
+            }
+            return ;
+        }
+        is_initialized = true ;
+
         weak Gtk.IconTheme default_theme = Gtk.IconTheme.get_default () ;
         default_theme.add_resource_path ("/com/github/rajsolai/TextSnatcher") ;
 

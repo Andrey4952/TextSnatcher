@@ -14,6 +14,9 @@ public class MainWindow : Hdy.ApplicationWindow {
         window_box.add (main_screen) ;
         window_handle.add (window_box) ;
         add (window_handle) ;
+        delete_event.connect (() => {
+            return hide_on_delete () ;
+        }) ;
         show_all () ;
     }
 
