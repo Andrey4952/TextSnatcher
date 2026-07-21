@@ -11,60 +11,24 @@ public class LanguageButton : Gtk.MenuButton {
         box.show_all () ;
         this.add (box) ;
 
-        var menu_list = new Gtk.Box (Gtk.Orientation.VERTICAL, 5) ;
+        var menu_list = new Gtk.Box (Gtk.Orientation.VERTICAL, 2) ;
         var scroll_view = new Gtk.ScrolledWindow (null, null) ;
         scroll_view.height_request = 190 ;
         scroll_view.width_request = 150 ;
 
-        var spa = new Gtk.ModelButton () ;
-        var eng = new Gtk.ModelButton () ;
-        var chi_sim = new Gtk.ModelButton () ;
-        var jpn = new Gtk.ModelButton () ;
-        var rus = new Gtk.ModelButton () ;
-        var fra = new Gtk.ModelButton () ;
-        var ara = new Gtk.ModelButton () ;
-        var nld = new Gtk.ModelButton () ; // Dutch Language is represented as nld
-        var tur = new Gtk.ModelButton () ;
-        var deu = new Gtk.ModelButton () ;
-        var ind = new Gtk.ModelButton () ;
-
-        deu.text = "German" ;
-        nld.text = "Dutch" ;
-        tur.text = "Turkish" ;
-        eng.text = "English" ;
-        spa.text = "Spanish" ;
-        chi_sim.text = "Chinese (Simplified)" ;
-        jpn.text = "Japanese" ;
-        rus.text = "Russian" ;
-        fra.text = "French" ;
-        ara.text = "Arabic" ;
-        ind.text = "Indonesian" ;
-
         var popover = new Gtk.Popover (null) ;
 
-        deu.clicked.connect (() => { set_active_language ("deu", popover) ; }) ;
-        eng.clicked.connect (() => { set_active_language ("eng", popover) ; }) ;
-        chi_sim.clicked.connect (() => { set_active_language ("chi_sim", popover) ; }) ;
-        jpn.clicked.connect (() => { set_active_language ("jpn", popover) ; }) ;
-        fra.clicked.connect (() => { set_active_language ("fra", popover) ; }) ;
-        rus.clicked.connect (() => { set_active_language ("rus+eng", popover) ; }) ;
-        ara.clicked.connect (() => { set_active_language ("ara", popover) ; }) ;
-        spa.clicked.connect (() => { set_active_language ("spa", popover) ; }) ;
-        nld.clicked.connect (() => { set_active_language ("nld", popover) ; }) ;
-        tur.clicked.connect (() => { set_active_language ("tur", popover) ; }) ;
-        ind.clicked.connect (() => { set_active_language ("ind", popover) ; }) ;
-
-        menu_list.add (eng) ;
-        menu_list.add (rus) ;
-        menu_list.add (chi_sim) ;
-        menu_list.add (jpn) ;
-        menu_list.add (deu) ;
-        menu_list.add (fra) ;
-        menu_list.add (spa) ;
-        menu_list.add (nld) ;
-        menu_list.add (tur) ;
-        menu_list.add (ara) ;
-        menu_list.add (ind) ;
+        menu_list.add (create_lang_button ("English", "eng", popover)) ;
+        menu_list.add (create_lang_button ("Russian", "rus", popover)) ;
+        menu_list.add (create_lang_button ("Chinese (Simplified)", "chi_sim", popover)) ;
+        menu_list.add (create_lang_button ("Japanese", "jpn", popover)) ;
+        menu_list.add (create_lang_button ("German", "deu", popover)) ;
+        menu_list.add (create_lang_button ("French", "fra", popover)) ;
+        menu_list.add (create_lang_button ("Spanish", "spa", popover)) ;
+        menu_list.add (create_lang_button ("Dutch", "nld", popover)) ;
+        menu_list.add (create_lang_button ("Turkish", "tur", popover)) ;
+        menu_list.add (create_lang_button ("Arabic", "ara", popover)) ;
+        menu_list.add (create_lang_button ("Indonesian", "ind", popover)) ;
 
         scroll_view.add (menu_list) ;
         scroll_view.show_all () ;
@@ -73,6 +37,17 @@ public class LanguageButton : Gtk.MenuButton {
 
         preferred_language = load_config () ;
         update_ui_label (preferred_language) ;
+    }
+
+    private Gtk.Button create_lang_button (string label_text, string lang_code, Gtk.Popover popover) {
+        var btn = new Gtk.Button.with_label (label_text) ;
+        btn.relief = Gtk.ReliefStyle.NONE ;
+        btn.xalign = 0 ;
+        btn.get_style_context ().add_class ("flat") ;
+        btn.clicked.connect (() => {
+            set_active_language (lang_code, popover) ;
+        }) ;
+        return btn ;
     }
 
     private void set_active_language (string lang_code, Gtk.Popover? popover = null) {
