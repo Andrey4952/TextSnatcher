@@ -106,12 +106,10 @@ public class TesseractTrigger : Object {
         if (type == "file") {
             accept_files_fromchooser () ;
         } else if (type == "clip") {
-            if (clipboard.wait_is_image_available ()) {
-                clipboard.request_image (clipboard_callback) ;
-            } else {
-                print ("no image found in clipboard") ;
-                label.label = "No Image found in Clipboard" ;
+            if (label != null) {
+                label.label = "Reading Image" ;
             }
+            clipboard.request_image (clipboard_callback) ;
         } else {
             if (session == "x11") {
                 yield save_shot_scrot () ;
@@ -126,8 +124,34 @@ public class TesseractTrigger : Object {
         }
     }
 
+    bool try_wl_paste_fallback () {
+        try {
+            int exit_status ;
+            string cmd = "wl-paste -t image/png > " + scrot_path ;
+            Process.spawn_command_line_sync (cmd, null, null, out exit_status) ;
+            if (exit_status == 0) {
+                File file = File.new_for_path (scrot_path) ;
+                if (file.query_exists (null)) {
+                    FileInfo info = file.query_info ("standard::size", FileQueryInfoFlags.NONE, null) ;
+                    if (info.get_size () > 0) {
+                        return true ;
+                    }
+                }
+            }
+        } catch (Error e) {
+            print ("wl-paste fallback error: %s\n", e.message) ;
+        }
+        return false ;
+    }
+
     void clipboard_callback (Gtk.Clipboard _, Gdk.Pixbuf? pixbuf) {
         if (pixbuf == null) {
+            if (try_wl_paste_fallback ()) {
+                read_image.begin (scrot_path, (obj, res) => {
+                    print ("Reading image from wl-paste fallback\n") ;
+                }) ;
+                return ;
+            }
             print ("No image found in clipboard\n") ;
             if (label != null) {
                 label.label = "No Image found in Clipboard" ;
