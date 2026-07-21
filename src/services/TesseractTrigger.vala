@@ -56,7 +56,9 @@ public class TesseractTrigger : Object {
         Idle.add (read_image.callback) ;
         yield ;
         try {
-            string tess_command = "tesseract " + file_path + " " + out_path + @" -l $lang" ;
+            string quoted_file = file_path.has_prefix ("'") ? file_path : "'" + file_path + "'" ;
+            string quoted_out = out_path.has_prefix ("'") ? out_path : "'" + out_path + "'" ;
+            string tess_command = "tesseract " + quoted_file + " " + quoted_out + @" -l $lang" ;
             Process.spawn_command_line_sync (tess_command, out res, out err, out stat) ;
             if (stat == 0) {
                 copy_to_clipboard () ;
