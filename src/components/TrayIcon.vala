@@ -197,6 +197,13 @@ public class TrayIcon : Object {
             LanguageButton.preferred_language = "rus";
         });
         lang_submenu.append(rus_item);
+
+        var rus_eng_item = new Gtk.MenuItem.with_label("Russian + English");
+        rus_eng_item.activate.connect(() => {
+            print("Russian + English language selected from tray menu\n");
+            LanguageButton.preferred_language = "eng+rus";
+        });
+        lang_submenu.append(rus_eng_item);
         
         lang_menu_item.set_submenu(lang_submenu);
         tray_menu.append(lang_menu_item);
