@@ -1,95 +1,105 @@
-<h1>Thanks for all the Support shown by Stars, Issues and PRs 💌 ! Currently I'm Saving money for my Linux PC, Soon (next month) the project will be back with updates and fixes</h1>
+<div align="center">
+<img src="./data/icons/com.github.rajsolai.textsnatcher.svg" height="110px" />
+<h1>TextSnatcher</h1>
+<p>Copy Text from Images with ease. Fast and modern OCR for Linux.</p>
 
 [![Vala Programming language](https://img.shields.io/badge/Made%20With-Vala%20-A56DE2)](https://wiki.gnome.org/Projects/Vala)
 ![Flatpak Build workflow](https://github.com/RajSolai/TextSnatcher/actions/workflows/flatpak-build.yml/badge.svg)
 
-<div align="center">
-<img src="./data/icons/com.github.rajsolai.textsnatcher.svg" height="110px" />
-<h1>TextSnatcher</h1>
-<p>Copy Text from Images with ease, Perform OCR operations in seconds.</p>
-<img alt="TextSnatcher OCR App for Linux" src="https://raw.githubusercontent.com/RajSolai/TextSnatcher/master/data/screenshots/snap-default.png"/></br>
-<a href="https://www.producthunt.com/posts/textsnatcher?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-textsnatcher" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=344401&theme=light" alt="TextSnatcher - How&#0032;to&#0032;copy&#0032;text&#0032;from&#0032;images&#0044;&#0032;answer&#0032;is&#0032;TextSnatcher | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+<img alt="TextSnatcher OCR App for Linux" src="./data/screenshots/snap-default.png"/></br>
 </div>
 
-## Download
+---
+
+## ✨ Key Features & Improvements
+
+### 🌐 Dual Language Support (Russian + English Hybrid OCR)
+TextSnatcher supports simultaneous **Russian + English (`rus+eng`)** OCR mode (`RU+`). 
+This allows seamless recognition of mixed text — code snippets, technical documentation, bilingual UI elements, and memes without dropping English technical terms or Latin characters.
 
 <div align="center">
-  <a href='https://flathub.org/apps/details/com.github.rajsolai.textsnatcher'><img width='240' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-i-en.png'/></a></br>
-  
-<a href="https://appcenter.elementary.io/com.github.rajsolai.textsnatcher"><img src="https://appcenter.elementary.io/badge.svg" alt="Get it on AppCenter"></a>
+<img alt="Russian + English Hybrid OCR" src="./data/screenshots/snap-hybrid-lang.png" width="450px" />
 </div>
 
-## Features
+### 📌 System Tray Integration & Background Mode
+Full System Tray support for **COSMIC / Wayland** (via `ayatana-appindicator3` and StatusNotifierItem D-Bus export) and **X11** desktop environments:
+- **Take Screenshot directly from tray** without raising or unhiding the main window.
+- **Close to Tray:** Clicking the window close button (`X`) minimizes TextSnatcher to the system tray instead of terminating the app.
+- **Silent Background Operation:** Screenshots and OCR operations can run completely in the background without stealing window focus or interrupting your workflow.
 
--   Multiple Language Support.
--   Copy Text from images with a Drag.
--   Drag over any Image and Paste.
--   Fast and Easy to Use.
--   This application uses the Tesseract OCR 4.x for the character
-    recognition.
--   Read more about [Tesseract](https://tesseract-ocr.github.io/tessdoc/Home.html) and Star ⭐️ [Tesseract-Project](https://github.com/tesseract-ocr/tesseract).
+<div align="center">
+<img alt="System Tray Integration" src="./data/screenshots/snap-tray.png" width="450px" />
+</div>
 
-## Screencasts
+### 📸 Next-Gen Screenshot Engine & Desktop Compatibility
 
-https://user-images.githubusercontent.com/54436424/152921719-228485ba-0d37-4b01-864e-63a2792248b5.mp4
+The screenshot engine has been completely overhauled to support modern Linux display servers and compositors:
 
-https://user-images.githubusercontent.com/54436424/152921736-c9567c9d-0afa-4c09-8706-6b2a1b6b635a.mp4
+- **Wayland (Native `grim` + `slurp`):** High-performance cropped area selection on Wayland. Includes a 200ms non-blocking delay to resolve Wayland seat grab conflicts with closing panel menus, and direct `wl-copy` integration so copied text is placed on the clipboard even when the main window is hidden.
+- **COSMIC Desktop Integration:** *(Custom extension added by Andrey4952)* — exports D-Bus menus for System76 COSMIC Desktop's StatusNotifierWatcher and KDE StatusNotifierWatcher seamlessly.
+- **XDG Desktop Portal Fallback:** Automatic fallback to `libportal` (`Xdp.Portal`) if native CLI screenshot utilities are unavailable.
+- **X11 Compatibility:** Uses `scrot` for legacy X11 sessions.
 
-## Screenshots
+#### 💻 Supported Desktop Environments & Compositors
 
-![TextSnatcher OCR App for Linux](https://raw.githubusercontent.com/RajSolai/TextSnatcher/master/data/screenshots/snap-default.png)
+| Environment / Compositor | Screenshot Backend | System Tray Support |
+|--------------------------|--------------------|---------------------|
+| **COSMIC Desktop (System76)** | `grim` + `slurp` / Portal | Native (`CosmicTray` D-Bus SNI) |
+| **Sway / Hyprland / wlroots** | `grim` + `slurp` | AppIndicator / SNI |
+| **KDE Plasma (Wayland & X11)** | `grim` + `slurp` / `scrot` | Native StatusNotifierItem |
+| **GNOME (Wayland & X11)** | XDG Desktop Portal / `scrot` | AppIndicator Extension |
+| **XFCE / MATE / Cinnamon (X11)** | `scrot` | Native GTK Tray |
 
-![TextSnatcher OCR App for Linux](https://raw.githubusercontent.com/RajSolai/TextSnatcher/master/data/screenshots/snap-dark.png)
+---
 
-## Support Me
+## 🛠 Dependencies
 
-<a href="https://www.buymeacoffee.com/rajsolai" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="width: 200px;" ></a>
+Ensure you have these dependencies installed:
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/R6R7ABG0F)
+### Runtime Dependencies
 
-## Social Media Posts
+- `tesseract-ocr` & language data ([arch repos](https://archlinux.org/packages/extra/x86_64/tesseract/), [debian repos](https://packages.debian.org/search?keywords=tesseract-ocr))
+- `grim` & `slurp` (for Wayland area selection)
+- `wl-clipboard` (`wl-copy` / `wl-paste` for Wayland clipboard support)
+- `scrot` (for legacy X11 screenshot capture)
 
-[LinkedIn Post on Why I created TextSnatcher](https://www.linkedin.com/posts/solai085_linux-commentbelow-apple-activity-6826408004519374848-wxsw)
+### Buildtime Dependencies
 
-## Dependencies
+- `granite`
+- `gtk+-3.0`
+- `gobject-2.0`
+- `gdk-pixbuf-2.0`
+- `libhandy-1`
+- `libportal` (libportal-0.5+)
+- `ayatana-appindicator3-0.1`
 
-Ensure you have these dependencies installed
+---
 
-### Runtime Dependency
-
--   scrot
--   tesseract-ocr
--   tesseract language data
-    [arch repos](https://archlinux.org/packages/community/x86_64/tesseract)
-    [debian repos](https://packages.debian.org/search?keywords=tesseract-ocr)
-
-### Buildtime Dependency
-
--   granite
--   gtk+-3.0
--   gobject-2.0
--   gdk-pixbuf-2.0
--   libhandy-1
--   libportal-0.5
-
-## Install, build and run
+## 🚀 Install, Build and Run
 
 ```bash
-# clone repository
-git clone https://github.com/RajSolai/TextSnatcher.git TextSnatcher
-# cd to dir
+# Clone repository
+git clone https://github.com/Andrey4952/TextSnatcher.git
 cd TextSnatcher
-# run meson
-meson build --prefix=/usr
-# cd to build, build and test
-cd build
-sudo ninja install && com.github.rajsolai.textsnatcher
+
+# Configure build with Meson
+meson setup build --prefix=/usr/local
+
+# Compile and install
+ninja -C build
+sudo ninja -C build install
+
+# Run TextSnatcher
+com.github.rajsolai.textsnatcher
 ```
 
-## Inspirations
+---
 
--   ReadMe: https://github.com/alainm23/planner
--   Application Structure: https://github.com/alcadica/develop
--   TextSniper (MacOS Application)
+## 💡 Inspirations & Credits
+
+- Original Upstream Application: [RajSolai/TextSnatcher](https://github.com/RajSolai/TextSnatcher)
+- ReadMe Structure: [alainm23/planner](https://github.com/alainm23/planner)
+- Application Structure: [alcadica/develop](https://github.com/alcadica/develop)
+- TextSniper (macOS Application)
 
 Made with ❤️ for Linux
