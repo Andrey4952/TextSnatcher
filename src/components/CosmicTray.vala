@@ -134,18 +134,39 @@ public class CosmicTray : Object {
         return label;
     }
 
+    // Returns the status label without raising the window.
+    // Use this for screenshot / clipboard / file actions so the window
+    // stays hidden when the user triggered the action from the tray.
+    private Gtk.Label get_label_only (out MainWindow? main_win) {
+        main_win = null;
+        Gtk.Label label = new Gtk.Label ("");
+        if (app != null) {
+            foreach (var w in app.get_windows ()) {
+                if (w is MainWindow) {
+                    main_win = (MainWindow) w;
+                    label = main_win.get_title_label ();
+                }
+            }
+        }
+        return label;
+    }
+
     private void invoke_action (string action) {
         MainWindow? main_win = null;
         if (action == "screenshot_sel") {
-            var label = present_and_get_label (out main_win);
+            // Use get_label_only() — do NOT present the window before the screenshot.
+            // present_and_get_label() would raise the window and cover the area
+            // the user is trying to select (especially on a second monitor).
+            var label = get_label_only (out main_win);
             trigger.start_tess_process.begin (label, "shot", (obj, res) => {});
         } else if (action == "file") {
-            present_and_get_label (out main_win);
+            get_label_only (out main_win);
             trigger.accept_files_fromchooser (main_win);
         } else if (action == "clipboard") {
-            var label = present_and_get_label (out main_win);
+            var label = get_label_only (out main_win);
             trigger.start_tess_process.begin (label, "clip", (obj, res) => {});
         } else if (action == "show") {
+            // Explicit "Show Window" — present() is intentional here.
             if (app != null) foreach (var w in app.get_windows ()) { w.present (); }
         } else if (action == "hide") {
             if (app != null) foreach (var w in app.get_windows ()) { w.hide (); }

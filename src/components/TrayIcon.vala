@@ -48,6 +48,23 @@ public class TrayIcon : Object {
         return label;
     }
 
+    // Returns the status label without raising the window.
+    // Use this for screenshot / clipboard / file actions so the window
+    // stays hidden when the user triggered the action from the tray.
+    private Gtk.Label get_label_only (out MainWindow? main_win) {
+        main_win = null;
+        Gtk.Label label = new Gtk.Label ("");
+        if (app != null) {
+            foreach (var w in app.get_windows ()) {
+                if (w is MainWindow) {
+                    main_win = (MainWindow) w;
+                    label = main_win.get_title_label ();
+                }
+            }
+        }
+        return label;
+    }
+
     private void setup_tray_icon() {
         print("Setting up tray icon\n");
 
@@ -110,16 +127,20 @@ public class TrayIcon : Object {
         var fullscreen_item = new Gtk.MenuItem.with_label("Fullscreen");
         fullscreen_item.activate.connect(() => {
             print("Fullscreen screenshot selected from tray menu\n");
-            var dummy_label = new Gtk.Label("");
-            tesseract_trigger.start_tess_process.begin(dummy_label, "shot");
+            // Use a dummy label — do NOT present the window before the screenshot.
+            // This avoids the window popping up and covering the selection area.
+            MainWindow? main_win = null;
+            var label = get_label_only (out main_win);
+            tesseract_trigger.start_tess_process.begin(label, "shot");
         });
         screenshot_submenu.append(fullscreen_item);
 
         var selection_item = new Gtk.MenuItem.with_label("Selection");
         selection_item.activate.connect(() => {
             print("Selection screenshot selected from tray menu\n");
-            var dummy_label = new Gtk.Label("");
-            tesseract_trigger.start_tess_process.begin(dummy_label, "shot");
+            MainWindow? main_win = null;
+            var label = get_label_only (out main_win);
+            tesseract_trigger.start_tess_process.begin(label, "shot");
         });
         screenshot_submenu.append(selection_item);
         
@@ -130,8 +151,9 @@ public class TrayIcon : Object {
         var choose_file_item = new Gtk.MenuItem.with_label("Choose File");
         choose_file_item.activate.connect(() => {
             print("Choose File selected from tray menu\n");
-            var dummy_label = new Gtk.Label("");
-            tesseract_trigger.start_tess_process.begin(dummy_label, "file");
+            MainWindow? main_win = null;
+            get_label_only (out main_win);
+            tesseract_trigger.accept_files_fromchooser (main_win);
         });
         tray_menu.append(choose_file_item);
 
@@ -139,8 +161,9 @@ public class TrayIcon : Object {
         var clipboard_item = new Gtk.MenuItem.with_label("Get from Clipboard");
         clipboard_item.activate.connect(() => {
             print("Get from Clipboard selected from tray menu\n");
-            var dummy_label = new Gtk.Label("");
-            tesseract_trigger.start_tess_process.begin(dummy_label, "clip");
+            MainWindow? main_win = null;
+            var label = get_label_only (out main_win);
+            tesseract_trigger.start_tess_process.begin(label, "clip");
         });
         tray_menu.append(clipboard_item);
         
