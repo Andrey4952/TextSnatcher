@@ -124,9 +124,9 @@ public class CosmicTray : Object {
 
     private void invoke_action (string action) {
         if (action == "snatch_now") trigger.accept_files_fromchooser ();
-        else if (action == "screenshot_sel") trigger.take_screenshot_tray (true);
+        else if (action == "screenshot_sel") trigger.get_screenshot.begin (new Gtk.Label (""), "shot", (obj, res) => {});
         else if (action == "file") trigger.accept_files_fromchooser ();
-        else if (action == "clipboard") trigger.get_screenshot.begin (null, "clip", (obj, res) => {});
+        else if (action == "clipboard") trigger.get_screenshot.begin (new Gtk.Label (""), "clip", (obj, res) => {});
         else if (action == "show") { if (app != null) foreach (var w in app.get_windows ()) { w.present (); } }
         else if (action == "hide") { if (app != null) foreach (var w in app.get_windows ()) { w.hide (); } }
         else if (action == "quit") {

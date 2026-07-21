@@ -34,4 +34,8 @@ public class MainScreen : Gtk.EventBox {
             return ;
         }) ;
     }
+
+    public TesseractTrigger get_tesseract_trigger () {
+        return tesseract_trigger ;
+    }
 }

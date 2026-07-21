@@ -18,37 +18,35 @@ public class TrayIcon : Object {
         is_wayland = (session_type != null && session_type.down().contains("wayland")) &&
                      (gdk_backend == null || !gdk_backend.down().contains("x11"));
 
-        Logger.info(@"Detected session type: $(session_type ?? "unknown")");
-        Logger.info(@"Detected GDK backend: $(gdk_backend ?? "unknown")");
-        Logger.info(@"Wayland detection result: $(is_wayland)");
+        print (@"Detected session type: $(session_type ?? "unknown")\n") ;
+        print (@"Detected GDK backend: $(gdk_backend ?? "unknown")\n") ;
+        print (@"Wayland detection result: $(is_wayland)\n") ;
 
         if (is_wayland) {
-            Logger.info("Running on Wayland with default backend, tray icon is not supported - skipping initialization");
-            // On Wayland, tray icons are typically not supported, so we skip initialization
-            // This prevents issues with deprecated StatusIcon on modern desktop environments
+            print ("Running on Wayland with default backend, tray icon is not supported - skipping initialization\n") ;
         } else {
-            Logger.info("Running on X11 or tray icon supported environment (or GDK_BACKEND=x11 forced), initializing tray icon");
-            setup_tray_icon();
+            print ("Running on X11 or tray icon supported environment (or GDK_BACKEND=x11 forced), initializing tray icon\n") ;
+            setup_tray_icon () ;
         }
     }
 
     private void setup_tray_icon() {
-        Logger.info("Setting up tray icon");
+        print("Setting up tray icon\n");
 
         try {
             status_icon = new Gtk.StatusIcon();
             status_icon.set_from_icon_name("com.github.rajsolai.textsnatcher");
             status_icon.set_tooltip_text("TextSnatcher - Extract text from images");
-            Logger.info("Tray icon tooltip set");
+            print("Tray icon tooltip set\n");
 
             // Check if status icon is actually supported (some Wayland compositors may not support it)
             if (status_icon.is_embedded()) {
                 status_icon.set_visible(true);
-                Logger.info("Tray icon embedded and visible");
+                print("Tray icon embedded and visible\n");
             } else {
                 // On some Wayland compositors, embedding fails, so we try to make it visible anyway
                 status_icon.set_visible(!is_wayland); // Hide on Wayland by default
-                Logger.info(@"Tray icon not embedded, visible status: $(status_icon.get_visible())");
+                print(@"Tray icon not embedded, visible status: $(status_icon.get_visible())\n");
             }
 
             status_icon.activate.connect(on_activate);
@@ -56,23 +54,23 @@ public class TrayIcon : Object {
                 on_popup_menu(icon, button, time);
             });
 
-            Logger.info("Tray icon setup completed");
+            print("Tray icon setup completed\n");
         } catch (Error e) {
-            Logger.error(@"Failed to create tray icon: $(e.message)");
+            critical(@"Failed to create tray icon: $(e.message)");
             status_icon = null;
         }
     }
 
     private void on_activate() {
-        Logger.info("Tray icon activated, opening main window");
+        print("Tray icon activated, opening main window\n");
         open_requested();
     }
 
     private void on_popup_menu(Gtk.StatusIcon? status_icon, uint button, uint32 activate_time) {
-        Logger.info("Tray icon popup menu requested");
+        print("Tray icon popup menu requested\n");
 
         if (status_icon == null) {
-            Logger.warn("Status icon is null, cannot show popup menu");
+            warning("Status icon is null, cannot show popup menu");
             return;
         }
 
@@ -89,7 +87,7 @@ public class TrayIcon : Object {
         // Snatch Now menu item
         var snatch_now_item = new Gtk.MenuItem.with_label("Snatch Now!");
         snatch_now_item.activate.connect(() => {
-            Logger.info("Snatch Now selected from tray menu");
+            print("Snatch Now selected from tray menu\n");
             open_requested();
         });
         tray_menu.append(snatch_now_item);
@@ -104,8 +102,7 @@ public class TrayIcon : Object {
         
         var fullscreen_item = new Gtk.MenuItem.with_label("Fullscreen");
         fullscreen_item.activate.connect(() => {
-            Logger.info("Fullscreen screenshot selected from tray menu");
-            // Trigger fullscreen screenshot - we'll need a dummy label for this
+            print("Fullscreen screenshot selected from tray menu\n");
             var dummy_label = new Gtk.Label("");
             tesseract_trigger.start_tess_process.begin(dummy_label, "shot");
         });
@@ -113,8 +110,7 @@ public class TrayIcon : Object {
 
         var selection_item = new Gtk.MenuItem.with_label("Selection");
         selection_item.activate.connect(() => {
-            Logger.info("Selection screenshot selected from tray menu");
-            // Trigger selection screenshot - we'll need a dummy label for this
+            print("Selection screenshot selected from tray menu\n");
             var dummy_label = new Gtk.Label("");
             tesseract_trigger.start_tess_process.begin(dummy_label, "shot");
         });
@@ -126,7 +122,7 @@ public class TrayIcon : Object {
         // Choose File menu item
         var choose_file_item = new Gtk.MenuItem.with_label("Choose File");
         choose_file_item.activate.connect(() => {
-            Logger.info("Choose File selected from tray menu");
+            print("Choose File selected from tray menu\n");
             var dummy_label = new Gtk.Label("");
             tesseract_trigger.start_tess_process.begin(dummy_label, "file");
         });
@@ -135,7 +131,7 @@ public class TrayIcon : Object {
         // Get from Clipboard menu item
         var clipboard_item = new Gtk.MenuItem.with_label("Get from Clipboard");
         clipboard_item.activate.connect(() => {
-            Logger.info("Get from Clipboard selected from tray menu");
+            print("Get from Clipboard selected from tray menu\n");
             var dummy_label = new Gtk.Label("");
             tesseract_trigger.start_tess_process.begin(dummy_label, "clip");
         });
@@ -151,21 +147,21 @@ public class TrayIcon : Object {
         
         var save_docs_item = new Gtk.MenuItem.with_label("Save to Documents");
         save_docs_item.activate.connect(() => {
-            Logger.info("Save to Documents selected from tray menu");
+            print("Save to Documents selected from tray menu\n");
             tesseract_trigger.save_to_documents();
         });
         save_submenu.append(save_docs_item);
         
         var save_images_item = new Gtk.MenuItem.with_label("Save to Images");
         save_images_item.activate.connect(() => {
-            Logger.info("Save to Images selected from tray menu");
+            print("Save to Images selected from tray menu\n");
             tesseract_trigger.save_to_images();
         });
         save_submenu.append(save_images_item);
         
         var copy_clipboard_item = new Gtk.MenuItem.with_label("Copy to Clipboard");
         copy_clipboard_item.activate.connect(() => {
-            Logger.info("Copy to Clipboard selected from tray menu");
+            print("Copy to Clipboard selected from tray menu\n");
             tesseract_trigger.copy_to_clipboard();
         });
         save_submenu.append(copy_clipboard_item);
@@ -183,17 +179,15 @@ public class TrayIcon : Object {
         
         var eng_item = new Gtk.MenuItem.with_label("English");
         eng_item.activate.connect(() => {
-            Logger.info("English language selected from tray menu");
-            var lang_service = new LanguageService();
-            lang_service.save_pref_language("eng");
+            print("English language selected from tray menu\n");
+            LanguageButton.preferred_language = "eng";
         });
         lang_submenu.append(eng_item);
         
         var rus_item = new Gtk.MenuItem.with_label("Russian");
         rus_item.activate.connect(() => {
-            Logger.info("Russian language selected from tray menu");
-            var lang_service = new LanguageService();
-            lang_service.save_pref_language("rus");
+            print("Russian language selected from tray menu\n");
+            LanguageButton.preferred_language = "rus";
         });
         lang_submenu.append(rus_item);
         
@@ -207,7 +201,7 @@ public class TrayIcon : Object {
         // Quit menu item
         var quit_item = new Gtk.MenuItem.with_label("Quit");
         quit_item.activate.connect(() => {
-            Logger.info("Quit selected from tray menu");
+            print("Quit selected from tray menu\n");
             quit_requested();
         });
         tray_menu.append(quit_item);

@@ -1,4 +1,4 @@
-class TesseractTrigger : Object {
+public class TesseractTrigger : Object {
     string out_path = GLib.Environment.get_home_dir () + "/.textsnatcher" ;
     string scrot_path = GLib.Environment.get_tmp_dir () + "/textshot.png" ;
     Gtk.Clipboard clipboard ;
@@ -52,8 +52,7 @@ class TesseractTrigger : Object {
     }
 
     async void read_image (string file_path) {
-        var lang_service = new LanguageService () ;
-        string lang = lang_service.get_pref_language () ;
+        string lang = LanguageButton.preferred_language ;
         label.label = "Reading Image" ;
         Idle.add (read_image.callback) ;
         yield ;
@@ -74,7 +73,15 @@ class TesseractTrigger : Object {
         }
     }
 
-    void copy_to_clipboard () {
+    public void save_to_documents () {
+        copy_to_clipboard () ;
+    }
+
+    public void save_to_images () {
+        copy_to_clipboard () ;
+    }
+
+    public void copy_to_clipboard () {
         try {
             string text_output ;
             FileUtils.get_contents (out_path + ".txt", out text_output) ;

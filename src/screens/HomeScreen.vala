@@ -4,7 +4,7 @@ class HomeScreen : Gtk.EventBox {
         var is_select_dialog_opened = false ;
         var tesseract_trigger = new TesseractTrigger () ;
         var main_box = new Gtk.Grid () ;
-        var vbox = new VerticalBox (4) ;
+        var vbox = new Gtk.Box (Gtk.Orientation.VERTICAL, 4) ;
         title_label = new Gtk.Label ("TextSnatcher") ;
         main_box.column_homogeneous = true ;
         main_box.row_homogeneous = true ;

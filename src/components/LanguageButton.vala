@@ -1,4 +1,6 @@
 public class LanguageButton : Gtk.MenuButton {
+    public static string preferred_language = "eng" ;
+
     public LanguageButton () {
         Object (
             image: new Gtk.Image.from_icon_name ("preferences-desktop-locale", Gtk.IconSize.SMALL_TOOLBAR)
@@ -7,7 +9,6 @@ public class LanguageButton : Gtk.MenuButton {
         var scroll_view = new Gtk.ScrolledWindow (null, null) ;
         scroll_view.height_request = 190 ;
         scroll_view.width_request = 150 ;
-        var lang = new LanguageService () ;
         var spa = new Gtk.ModelButton () ;
         var eng = new Gtk.ModelButton () ;
         var chi_sim = new Gtk.ModelButton () ;
@@ -32,17 +33,17 @@ public class LanguageButton : Gtk.MenuButton {
         ara.text = "Arabic" ;
         ind.text = "Indonesian" ;
 
-        deu.clicked.connect (() => { lang.save_pref_language ("deu") ; }) ;
-        eng.clicked.connect (() => { lang.save_pref_language ("eng") ; }) ;
-        chi_sim.clicked.connect (() => { lang.save_pref_language ("chi_sim") ; }) ;
-        jpn.clicked.connect (() => { lang.save_pref_language ("jpn") ; }) ;
-        fra.clicked.connect (() => { lang.save_pref_language ("fra") ; }) ;
-        rus.clicked.connect (() => { lang.save_pref_language ("rus") ; }) ;
-        ara.clicked.connect (() => { lang.save_pref_language ("ara") ; }) ;
-        spa.clicked.connect (() => { lang.save_pref_language ("spa") ; }) ;
-        nld.clicked.connect (() => { lang.save_pref_language ("nld") ; }) ;
-        tur.clicked.connect (() => { lang.save_pref_language ("tur") ; }) ;
-        ind.clicked.connect (() => { lang.save_pref_language ("ind") ; }) ;
+        deu.clicked.connect (() => { preferred_language = "deu" ; }) ;
+        eng.clicked.connect (() => { preferred_language = "eng" ; }) ;
+        chi_sim.clicked.connect (() => { preferred_language = "chi_sim" ; }) ;
+        jpn.clicked.connect (() => { preferred_language = "jpn" ; }) ;
+        fra.clicked.connect (() => { preferred_language = "fra" ; }) ;
+        rus.clicked.connect (() => { preferred_language = "rus" ; }) ;
+        ara.clicked.connect (() => { preferred_language = "ara" ; }) ;
+        spa.clicked.connect (() => { preferred_language = "spa" ; }) ;
+        nld.clicked.connect (() => { preferred_language = "nld" ; }) ;
+        tur.clicked.connect (() => { preferred_language = "tur" ; }) ;
+        ind.clicked.connect (() => { preferred_language = "ind" ; }) ;
 
         menu_list.add (eng) ;
         menu_list.add (chi_sim) ;

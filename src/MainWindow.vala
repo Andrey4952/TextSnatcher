@@ -1,8 +1,10 @@
 public class MainWindow : Hdy.ApplicationWindow {
+    private MainScreen main_screen ;
+
     public MainWindow (Gtk.Application app) {
         var window_handle = new Hdy.WindowHandle () ;
         var window_box = new Gtk.Box (Gtk.Orientation.VERTICAL, 0) ;
-        var main_screen = new MainScreen () ;
+        main_screen = new MainScreen () ;
         var header_bar = new CustomHeaderBar () ;
         default_height = 150 ;
         default_width = 300 ;
@@ -17,5 +19,9 @@ public class MainWindow : Hdy.ApplicationWindow {
 
     construct {
         Hdy.init () ;
+    }
+
+    public TesseractTrigger get_tesseract_trigger () {
+        return main_screen.get_tesseract_trigger () ;
     }
 }

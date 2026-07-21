@@ -57,6 +57,39 @@ public class Application : Gtk.Application {
 
         main_window = new MainWindow (this) ;
         add_window (main_window) ;
+
+        var tesseract_trigger = main_window.get_tesseract_trigger () ;
+        if (tesseract_trigger != null) {
+            var session_type = Environment.get_variable ("XDG_SESSION_TYPE") ;
+            var wayland_display = Environment.get_variable ("WAYLAND_DISPLAY") ;
+            var gdk_backend = Environment.get_variable ("GDK_BACKEND") ;
+            var desktop_environment = Environment.get_variable ("XDG_CURRENT_DESKTOP") ;
+
+            bool is_cosmic = desktop_environment != null && desktop_environment.down ().contains ("cosmic") ;
+            bool is_wayland = ((session_type != null && session_type.down ().contains ("wayland")) ||
+                              (wayland_display != null && wayland_display.has_prefix ("wayland"))) &&
+                             (gdk_backend == null || !gdk_backend.down ().contains ("x11")) ;
+
+            if (is_cosmic || is_wayland) {
+                var cosmic_tray = new CosmicTray (tesseract_trigger, this) ;
+                cosmic_tray.register () ;
+                this.shutdown.connect (() => {
+                    cosmic_tray.unregister () ;
+                }) ;
+            } else {
+                var tray_icon = new TrayIcon (tesseract_trigger) ;
+                if (tray_icon.is_available ()) {
+                    tray_icon.quit_requested.connect (() => {
+                        this.quit () ;
+                    }) ;
+                    tray_icon.open_requested.connect (() => {
+                        if (main_window != null) {
+                            main_window.present () ;
+                        }
+                    }) ;
+                }
+            }
+        }
     }
 
     public static int main (string[] args) {
