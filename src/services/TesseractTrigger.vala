@@ -116,12 +116,25 @@ public class TesseractTrigger : Object {
             if (session == "x11") {
                 yield save_shot_scrot () ;
             } else {
-                portal.take_screenshot.begin (
-                    null,
-                    Xdp.ScreenshotFlags.INTERACTIVE,
-                    null,
-                    save_shot
-                ) ;
+                try {
+                    int exit_status ;
+                    string[] argv = { "sh", "-c", "grim -g \"$(slurp)\" " + scrot_path } ;
+                    Process.spawn_sync (null, argv, null, SpawnFlags.SEARCH_PATH, null, null, null, out exit_status) ;
+                    if (exit_status == 0) {
+                        read_image.begin (scrot_path, (obj, res) => {}) ;
+                    } else {
+                        if (label != null) {
+                            label.label = "Screenshot Cancelled" ;
+                        }
+                    }
+                } catch (Error e) {
+                    portal.take_screenshot.begin (
+                        null,
+                        Xdp.ScreenshotFlags.INTERACTIVE,
+                        null,
+                        save_shot
+                    ) ;
+                }
             }
         }
     }
