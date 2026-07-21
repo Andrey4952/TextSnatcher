@@ -19,7 +19,7 @@ public class LanguageButton : Gtk.MenuButton {
         var popover = new Gtk.Popover (null) ;
 
         menu_list.add (create_lang_button ("English", "eng", popover)) ;
-        menu_list.add (create_lang_button ("Russian", "rus", popover)) ;
+        menu_list.add (create_lang_button ("Russian", "rus+eng", popover)) ;
         menu_list.add (create_lang_button ("Chinese (Simplified)", "chi_sim", popover)) ;
         menu_list.add (create_lang_button ("Japanese", "jpn", popover)) ;
         menu_list.add (create_lang_button ("German", "deu", popover)) ;
@@ -115,7 +115,7 @@ public class LanguageButton : Gtk.MenuButton {
         string? language_env = Environment.get_variable ("LANGUAGE") ;
         string sys_lang = ((lang_env != null) ? lang_env : "") + ((language_env != null) ? language_env : "") ;
 
-        if (sys_lang.contains ("ru") || sys_lang.contains ("RU")) return "rus" ;
+        if (sys_lang.contains ("ru") || sys_lang.contains ("RU")) return "rus+eng" ;
         if (sys_lang.contains ("de") || sys_lang.contains ("DE")) return "deu" ;
         if (sys_lang.contains ("fr") || sys_lang.contains ("FR")) return "fra" ;
         if (sys_lang.contains ("es") || sys_lang.contains ("ES")) return "spa" ;
