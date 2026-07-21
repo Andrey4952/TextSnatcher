@@ -116,6 +116,11 @@ public class TesseractTrigger : Object {
             if (session == "x11") {
                 yield save_shot_scrot () ;
             } else {
+                // Wait 200ms for the tray panel menu to fully close and release Wayland input grabs.
+                // This ensures slurp can successfully grab the pointer/keyboard on Wayland.
+                GLib.Timeout.add (200, get_screenshot.callback) ;
+                yield ;
+
                 try {
                     string[] argv = { "sh", "-c", "grim -g \"$(slurp)\" " + scrot_path } ;
                     Pid child_pid ;

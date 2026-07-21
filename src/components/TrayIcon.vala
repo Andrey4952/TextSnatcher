@@ -131,6 +131,9 @@ public class TrayIcon : Object {
             // This avoids the window popping up and covering the selection area.
             MainWindow? main_win = null;
             var label = get_label_only (out main_win);
+            if (main_win != null && !main_win.visible) {
+                label = new Gtk.Label ("");
+            }
             tesseract_trigger.start_tess_process.begin(label, "shot");
         });
         screenshot_submenu.append(fullscreen_item);
@@ -140,6 +143,9 @@ public class TrayIcon : Object {
             print("Selection screenshot selected from tray menu\n");
             MainWindow? main_win = null;
             var label = get_label_only (out main_win);
+            if (main_win != null && !main_win.visible) {
+                label = new Gtk.Label ("");
+            }
             tesseract_trigger.start_tess_process.begin(label, "shot");
         });
         screenshot_submenu.append(selection_item);
@@ -163,6 +169,9 @@ public class TrayIcon : Object {
             print("Get from Clipboard selected from tray menu\n");
             MainWindow? main_win = null;
             var label = get_label_only (out main_win);
+            if (main_win != null && !main_win.visible) {
+                label = new Gtk.Label ("");
+            }
             tesseract_trigger.start_tess_process.begin(label, "clip");
         });
         tray_menu.append(clipboard_item);

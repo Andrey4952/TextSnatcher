@@ -158,12 +158,18 @@ public class CosmicTray : Object {
             // present_and_get_label() would raise the window and cover the area
             // the user is trying to select (especially on a second monitor).
             var label = get_label_only (out main_win);
+            if (main_win != null && !main_win.visible) {
+                label = new Gtk.Label ("");
+            }
             trigger.start_tess_process.begin (label, "shot", (obj, res) => {});
         } else if (action == "file") {
             get_label_only (out main_win);
             trigger.accept_files_fromchooser (main_win);
         } else if (action == "clipboard") {
             var label = get_label_only (out main_win);
+            if (main_win != null && !main_win.visible) {
+                label = new Gtk.Label ("");
+            }
             trigger.start_tess_process.begin (label, "clip", (obj, res) => {});
         } else if (action == "show") {
             // Explicit "Show Window" — present() is intentional here.
