@@ -77,7 +77,7 @@ public class Application : Gtk.Application {
                     cosmic_tray.unregister () ;
                 }) ;
             } else {
-                var tray_icon = new TrayIcon (tesseract_trigger) ;
+                var tray_icon = new TrayIcon (tesseract_trigger, this) ;
                 if (tray_icon.is_available ()) {
                     tray_icon.quit_requested.connect (() => {
                         this.quit () ;

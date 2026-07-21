@@ -1,12 +1,13 @@
 public class MainScreen : Gtk.EventBox {
     TesseractTrigger tesseract_trigger ;
+    Gtk.Label title_label ;
+
     public MainScreen () {
         tesseract_trigger = new TesseractTrigger () ;
         var main_stack = new Gtk.Stack () ;
         var home_screen = new HomeScreen () ;
         var select_picture_screen = new SelectPictureScreen () ;
-        var title_label = home_screen.title_label ;
-        var dummmy = new Gtk.Label ("") ;
+        title_label = home_screen.title_label ;
 
         // main_stack.vhomogeneous = false;
         main_stack.transition_type = Gtk.StackTransitionType.SLIDE_UP_DOWN ;
@@ -37,5 +38,9 @@ public class MainScreen : Gtk.EventBox {
 
     public TesseractTrigger get_tesseract_trigger () {
         return tesseract_trigger ;
+    }
+
+    public Gtk.Label get_title_label () {
+        return title_label ;
     }
 }

@@ -119,16 +119,37 @@ public class CosmicTray : Object {
         return item;
     }
 
+    private Gtk.Label present_and_get_label (out MainWindow? main_win) {
+        main_win = null;
+        Gtk.Label label = new Gtk.Label ("");
+        if (app != null) {
+            foreach (var w in app.get_windows ()) {
+                w.present ();
+                if (w is MainWindow) {
+                    main_win = (MainWindow) w;
+                    label = main_win.get_title_label ();
+                }
+            }
+        }
+        return label;
+    }
+
     private void invoke_action (string action) {
-        if (action == "screenshot_sel") trigger.get_screenshot.begin (new Gtk.Label (""), "shot", (obj, res) => {});
-        else if (action == "file") trigger.accept_files_fromchooser ();
-        else if (action == "clipboard") trigger.get_screenshot.begin (new Gtk.Label (""), "clip", (obj, res) => {});
-        else if (action == "show") { if (app != null) foreach (var w in app.get_windows ()) { w.present (); } }
-        else if (action == "hide") { if (app != null) foreach (var w in app.get_windows ()) { w.hide (); } }
-        else if (action == "quit") {
-            // The window hides on close, so Gtk.Application won't quit on its
-            // own. Explicitly drop the SNI (found by our PID) and hard-exit so
-            // the bus name is released and no phantom icon lingers.
+        MainWindow? main_win = null;
+        if (action == "screenshot_sel") {
+            var label = present_and_get_label (out main_win);
+            trigger.start_tess_process.begin (label, "shot", (obj, res) => {});
+        } else if (action == "file") {
+            present_and_get_label (out main_win);
+            trigger.accept_files_fromchooser (main_win);
+        } else if (action == "clipboard") {
+            var label = present_and_get_label (out main_win);
+            trigger.start_tess_process.begin (label, "clip", (obj, res) => {});
+        } else if (action == "show") {
+            if (app != null) foreach (var w in app.get_windows ()) { w.present (); }
+        } else if (action == "hide") {
+            if (app != null) foreach (var w in app.get_windows ()) { w.hide (); }
+        } else if (action == "quit") {
             Idle.add (() => {
                 this.unregister ();
                 Process.exit (0);

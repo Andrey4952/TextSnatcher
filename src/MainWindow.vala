@@ -24,4 +24,8 @@ public class MainWindow : Hdy.ApplicationWindow {
     public TesseractTrigger get_tesseract_trigger () {
         return main_screen.get_tesseract_trigger () ;
     }
+
+    public Gtk.Label get_title_label () {
+        return main_screen.get_title_label () ;
+    }
 }

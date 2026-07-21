@@ -7,8 +7,11 @@ public class TrayIcon : Object {
     public signal void quit_requested();
     public signal void open_requested();
 
-    public TrayIcon(TesseractTrigger trigger) {
+    private weak Gtk.Application? app;
+
+    public TrayIcon(TesseractTrigger trigger, Gtk.Application? app = null) {
         tesseract_trigger = trigger;
+        this.app = app;
 
         // Check if we're running on Wayland
         var session_type = Environment.get_variable("XDG_SESSION_TYPE");
@@ -30,6 +33,21 @@ public class TrayIcon : Object {
         }
     }
 
+    private Gtk.Label present_and_get_label (out MainWindow? main_win) {
+        main_win = null;
+        Gtk.Label label = new Gtk.Label ("");
+        if (app != null) {
+            foreach (var w in app.get_windows ()) {
+                w.present ();
+                if (w is MainWindow) {
+                    main_win = (MainWindow) w;
+                    label = main_win.get_title_label ();
+                }
+            }
+        }
+        return label;
+    }
+
     private void setup_tray_icon() {
         print("Setting up tray icon\n");
 
@@ -44,10 +62,11 @@ public class TrayIcon : Object {
                 status_icon.set_visible(true);
                 print("Tray icon embedded and visible\n");
             } else {
-                // On some Wayland compositors, embedding fails, so we try to make it visible anyway
-                status_icon.set_visible(!is_wayland); // Hide on Wayland by default
-                print(@"Tray icon not embedded, visible status: $(status_icon.get_visible())\n");
+                print("Tray icon not embedded, might not be supported in this environment\n");
             }
+
+            // Create context menu
+            build_menu();
 
             status_icon.activate.connect(on_activate);
             status_icon.popup_menu.connect((icon, button, time) => {

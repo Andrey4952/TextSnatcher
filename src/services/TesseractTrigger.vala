@@ -14,10 +14,10 @@ public class TesseractTrigger : Object {
         clipboard = Gtk.Clipboard.get_default (display) ;
     }
 
-    public void accept_files_fromchooser () {
+    public void accept_files_fromchooser (Gtk.Window? parent_window = null) {
         var chooser = new Gtk.FileChooserNative (
             "Select an Image to perform OCR !",
-            null,
+            parent_window,
             Gtk.FileChooserAction.OPEN,
             "_Open",
             "_Cancel"
