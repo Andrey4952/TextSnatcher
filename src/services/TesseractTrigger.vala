@@ -126,17 +126,13 @@ public class TesseractTrigger : Object {
 
     bool try_wl_paste_fallback () {
         try {
+            string out_bytes ;
             int exit_status ;
-            string cmd = "wl-paste -t image/png > " + scrot_path ;
-            Process.spawn_command_line_sync (cmd, null, null, out exit_status) ;
-            if (exit_status == 0) {
-                File file = File.new_for_path (scrot_path) ;
-                if (file.query_exists (null)) {
-                    FileInfo info = file.query_info ("standard::size", FileQueryInfoFlags.NONE, null) ;
-                    if (info.get_size () > 0) {
-                        return true ;
-                    }
-                }
+            string cmd = "wl-paste -t image/png" ;
+            Process.spawn_command_line_sync (cmd, out out_bytes, null, out exit_status) ;
+            if (exit_status == 0 && out_bytes != null && out_bytes.length > 0) {
+                FileUtils.set_data (scrot_path, out_bytes.data) ;
+                return true ;
             }
         } catch (Error e) {
             print ("wl-paste fallback error: %s\n", e.message) ;
