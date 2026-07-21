@@ -126,13 +126,44 @@ public class TesseractTrigger : Object {
 
     bool try_wl_paste_fallback () {
         try {
-            string out_bytes ;
+            string types ;
             int exit_status ;
-            string cmd = "wl-paste -t image/png" ;
-            Process.spawn_command_line_sync (cmd, out out_bytes, null, out exit_status) ;
-            if (exit_status == 0 && out_bytes != null && out_bytes.length > 0) {
-                FileUtils.set_data (scrot_path, out_bytes.data) ;
-                return true ;
+            Process.spawn_command_line_sync ("wl-paste --list-types", out types, null, out exit_status) ;
+            if (exit_status != 0 || types == null || types.length == 0) {
+                return false ;
+            }
+
+            string target_type = "" ;
+            foreach (string line in types.split ("\n")) {
+                string t = line.strip () ;
+                if (t.has_prefix ("image/")) {
+                    target_type = t ;
+                    break ;
+                }
+            }
+
+            if (target_type.length > 0) {
+                string out_bytes ;
+                string cmd = "wl-paste -t " + target_type ;
+                Process.spawn_command_line_sync (cmd, out out_bytes, null, out exit_status) ;
+                if (exit_status == 0 && out_bytes != null && out_bytes.length > 0) {
+                    FileUtils.set_data (scrot_path, out_bytes.data) ;
+                    return true ;
+                }
+            } else if (types.contains ("text/uri-list")) {
+                string uris ;
+                Process.spawn_command_line_sync ("wl-paste -t text/uri-list", out uris, null, out exit_status) ;
+                if (exit_status == 0 && uris != null && uris.length > 0) {
+                    string first_uri = uris.split ("\n")[0].strip () ;
+                    if (first_uri.has_prefix ("file://")) {
+                        string path = GLib.Filename.from_uri (first_uri, null) ;
+                        File f = File.new_for_path (path) ;
+                        if (f.query_exists (null)) {
+                            f.copy (File.new_for_path (scrot_path), FileCopyFlags.OVERWRITE, null, null) ;
+                            return true ;
+                        }
+                    }
+                }
             }
         } catch (Error e) {
             print ("wl-paste fallback error: %s\n", e.message) ;
