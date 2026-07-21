@@ -110,6 +110,18 @@ public class LanguageButton : Gtk.MenuButton {
                 if (l != null && l.length > 0) return l ;
             }
         } catch (Error e) {}
+
+        string? lang_env = Environment.get_variable ("LANG") ;
+        string? language_env = Environment.get_variable ("LANGUAGE") ;
+        string sys_lang = ((lang_env != null) ? lang_env : "") + ((language_env != null) ? language_env : "") ;
+
+        if (sys_lang.contains ("ru") || sys_lang.contains ("RU")) return "rus" ;
+        if (sys_lang.contains ("de") || sys_lang.contains ("DE")) return "deu" ;
+        if (sys_lang.contains ("fr") || sys_lang.contains ("FR")) return "fra" ;
+        if (sys_lang.contains ("es") || sys_lang.contains ("ES")) return "spa" ;
+        if (sys_lang.contains ("zh") || sys_lang.contains ("ZH")) return "chi_sim" ;
+        if (sys_lang.contains ("ja") || sys_lang.contains ("JA")) return "jpn" ;
+
         return "eng" ;
     }
 }
